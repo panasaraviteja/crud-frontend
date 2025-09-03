@@ -1,6 +1,6 @@
 import React from "react"
-import "./globals.css";
 import Navbar from "../components/Navbar";
+import "./globals.css";
 import type { ReactNode } from "react";
 
 export const metadata = {

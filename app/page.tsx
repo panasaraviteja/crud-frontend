@@ -1,5 +1,6 @@
 import React from "react"
 import { fetchPosts } from "./../lib/api";
+import "./globals.css";
 import PostCard from "../components/PostCard";
 
 export default async function Home() {
