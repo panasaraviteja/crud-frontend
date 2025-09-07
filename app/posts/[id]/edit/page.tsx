@@ -1,7 +1,7 @@
 // app/posts/[id]/edit/page.tsx
 import { redirect } from "next/navigation";
 import { fetchPost } from "../../../../lib/api";
-import EditForm from "./EditForm"; // move your form to a separate client component
+import EditForm from "./EditForm";
 
 type EditPageProps = {
   params: { id: string };
@@ -9,11 +9,15 @@ type EditPageProps = {
 
 export default async function EditPostPage({ params }: EditPageProps) {
   const { id } = params;
+
+  // server-side fetch
   const post = await fetchPost(id);
 
+  // if post is null/undefined, redirect immediately
   if (!post) {
-    redirect("/posts"); // server-side redirect if post doesn't exist
+    redirect("/posts");
   }
 
-  return <EditForm post={post} />; // render your client-side edit form
+  // render client form with pre-filled data
+  return <EditForm post={post} />;
 }
