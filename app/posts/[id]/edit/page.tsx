@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
-import { fetchPosts, deletePost } from "../../../../lib/api";
 import { useRouter } from "next/navigation";
+import { fetchPost, updatePost, deletePost } from "../../../../lib/api";
 
 type Post = {
   id: string;
@@ -12,83 +11,111 @@ type Post = {
   author: string;
 };
 
-export default function HomePage() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
+type EditPageProps = {
+  params: { id: string };
+};
 
-  // 🔄 Fetch posts on mount
+export default function EditPostPage({ params }: EditPageProps) {
+  const router = useRouter();
+  const { id } = params;
+
+  const [post, setPost] = useState<Post | null>(null);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [author, setAuthor] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  // Fetch post data on mount
   useEffect(() => {
-    async function loadPosts() {
+    const getPost = async () => {
       try {
-        const data = await fetchPosts();
-        setPosts(data);
-      } catch (err) {
-        console.error("Error fetching posts:", err);
+        const data = await fetchPost(id);
+        setPost(data);
+        setTitle(data.title);
+        setContent(data.content);
+        setAuthor(data.author);
+      } catch (error) {
+        console.error("Failed to fetch post:", error);
       } finally {
         setLoading(false);
       }
-    }
-    loadPosts();
-  }, []);
+    };
+    getPost();
+  }, [id]);
 
-  // 🗑️ Delete handler
-  async function handleDelete(id: string) {
-    if (confirm("Are you sure you want to delete this post?")) {
-      try {
-        await deletePost(id);
-        setPosts((prev) => prev.filter((post) => post.id !== id));
-        router.refresh();
-      } catch (err) {
-        console.error("Delete failed:", err);
-      }
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await updatePost(id, { title, content, author });
+      router.push("/posts"); // redirect to home
+    } catch (error) {
+      console.error("Failed to update post:", error);
     }
-  }
+  };
 
-  if (loading) return <div className="max-w-2xl mx-auto">Loading...</div>;
+  const handleDelete = async () => {
+    if (!confirm("Are you sure you want to delete this post?")) return;
+    try {
+      await deletePost(id);
+      router.push("/posts"); // redirect to home
+    } catch (error) {
+      console.error("Failed to delete post:", error);
+    }
+  };
+
+  if (loading) return <p>Loading post...</p>;
+  if (!post) return <p>Post not found.</p>;
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">📌 All Posts</h1>
-
-      {posts.length === 0 ? (
-        <p>No posts found.</p>
-      ) : (
-        <ul className="space-y-4">
-          {posts.map((post) => (
-            <li
-              key={post.id}
-              className="bg-white p-4 rounded shadow flex justify-between items-center"
-            >
-              <div>
-                <h2 className="text-xl font-semibold">{post.title}</h2>
-                <p className="text-gray-600">{post.content}</p>
-                <span className="text-sm text-gray-500">By {post.author}</span>
-              </div>
-
-              <div className="flex gap-2">
-                {/* Pass post data via query params to prefill edit form */}
-                <Link
-                  href={{
-                    pathname: `/posts/${post.id}/edit`,
-                    query: { title: post.title, content: post.content, author: post.author }
-                  }}
-                  className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                  Edit
-                </Link>
-
-                <button
-                  onClick={() => handleDelete(post.id)}
-                  className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                >
-                  Delete
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+    <div className="max-w-xl mx-auto mt-10">
+      <h1 className="text-2xl font-bold mb-4">Edit Post</h1>
+      <form onSubmit={handleUpdate} className="space-y-4">
+        <div>
+          <label className="block font-semibold mb-1">Title:</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full border p-2 rounded"
+            required
+          />
+        </div>
+        <div>
+          <label className="block font-semibold mb-1">Content:</label>
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="w-full border p-2 rounded"
+            rows={5}
+            required
+          />
+        </div>
+        <div>
+          <label className="block font-semibold mb-1">Author:</label>
+          <input
+            type="text"
+            value={author}
+            onChange={(e) => setAuthor(e.target.value)}
+            className="w-full border p-2 rounded"
+            required
+          />
+        </div>
+        <div className="flex gap-4">
+          <button
+            type="submit"
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+          >
+            Update
+          </button>
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="bg-red-500 text-white px-4 py-2 rounded"
+          >
+            Delete
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
