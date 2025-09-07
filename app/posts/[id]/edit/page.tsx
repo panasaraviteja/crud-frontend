@@ -25,29 +25,33 @@ export default function EditPostPage({ params }: EditPageProps) {
   const [author, setAuthor] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // Fetch post data on mount
   useEffect(() => {
     const getPost = async () => {
       try {
         const data = await fetchPost(id);
+        if (!data) {
+          router.push("/posts"); // redirect immediately if post doesn't exist
+          return;
+        }
         setPost(data);
         setTitle(data.title);
         setContent(data.content);
         setAuthor(data.author);
       } catch (error) {
         console.error("Failed to fetch post:", error);
+        router.push("/posts"); // redirect on fetch error
       } finally {
         setLoading(false);
       }
     };
     getPost();
-  }, [id]);
+  }, [id, router]);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await updatePost(id, { title, content, author });
-      router.push("/posts"); // redirect to home
+      router.push("/posts"); // redirect after update
     } catch (error) {
       console.error("Failed to update post:", error);
     }
@@ -57,15 +61,15 @@ export default function EditPostPage({ params }: EditPageProps) {
     if (!confirm("Are you sure you want to delete this post?")) return;
     try {
       await deletePost(id);
-      router.push("/posts"); // redirect to home
+      router.push("/posts"); // redirect after delete
     } catch (error) {
       console.error("Failed to delete post:", error);
     }
   };
 
   if (loading) return <p>Loading post...</p>;
-  if (!post) return <p>Post not found.</p>;
 
+  // No need for post-not-found message, we redirect automatically
   return (
     <div className="max-w-xl mx-auto mt-10">
       <h1 className="text-2xl font-bold mb-4">Edit Post</h1>
