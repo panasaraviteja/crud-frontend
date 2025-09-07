@@ -1,0 +1,13 @@
+{
+  "extends": [
+    "web-recommended"
+  ],
+  "hints": {
+    "axe/forms": [
+      "default",
+      {
+        "label": "off"
+      }
+    ]
+  }
+}
