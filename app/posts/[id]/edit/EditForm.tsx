@@ -1,3 +1,4 @@
+// app/posts/[id]/edit/EditForm.tsx
 "use client";
 
 import { useState } from "react";
@@ -13,13 +14,13 @@ export default function EditForm({ post }: { post: any }) {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     await updatePost(post.id, { title, content, author });
-    router.push("/posts");
+    router.push("/posts"); // redirect after update
   };
 
   const handleDelete = async () => {
     if (!confirm("Are you sure?")) return;
     await deletePost(post.id);
-    router.push("/posts");
+    router.push("/posts"); // redirect after delete
   };
 
   return (
