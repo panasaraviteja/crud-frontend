@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { fetchPosts, deletePost } from "../lib/api";
+import { fetchPost, updatePost, deletePost } from "../../../../lib/api";
 import { useRouter } from "next/navigation";
 
 type Post = {
