@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { fetchPost, updatePost, deletePost } from "../../../../lib/api";
+import { fetchPosts, deletePost } from "../../../../lib/api";
 import { useRouter } from "next/navigation";
 
 type Post = {
@@ -37,8 +37,8 @@ export default function HomePage() {
     if (confirm("Are you sure you want to delete this post?")) {
       try {
         await deletePost(id);
-        setPosts((prev) => prev.filter((post) => post.id !== id)); // remove from state
-        router.refresh(); // ✅ ensure UI updates if using server components
+        setPosts((prev) => prev.filter((post) => post.id !== id));
+        router.refresh();
       } catch (err) {
         console.error("Delete failed:", err);
       }
@@ -67,12 +67,17 @@ export default function HomePage() {
               </div>
 
               <div className="flex gap-2">
+                {/* Pass post data via query params to prefill edit form */}
                 <Link
-                  href={`/posts/${post.id}/edit`}
+                  href={{
+                    pathname: `/posts/${post.id}/edit`,
+                    query: { title: post.title, content: post.content, author: post.author }
+                  }}
                   className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
                 >
                   Edit
                 </Link>
+
                 <button
                   onClick={() => handleDelete(post.id)}
                   className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
