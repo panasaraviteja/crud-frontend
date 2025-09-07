@@ -30,7 +30,7 @@ export default function EditPostPage({ params }: EditPageProps) {
       try {
         const data = await fetchPost(id);
         if (!data) {
-          router.push("/posts"); // redirect immediately if post doesn't exist
+          router.replace("/posts"); // immediate redirect
           return;
         }
         setPost(data);
@@ -38,14 +38,18 @@ export default function EditPostPage({ params }: EditPageProps) {
         setContent(data.content);
         setAuthor(data.author);
       } catch (error) {
-        console.error("Failed to fetch post:", error);
-        router.push("/posts"); // redirect on fetch error
+        router.replace("/posts"); // redirect on error
       } finally {
         setLoading(false);
       }
     };
     getPost();
   }, [id, router]);
+
+  if (loading || !post) {
+    // don't render anything until post is fetched or redirect is triggered
+    return null;
+  }
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,9 +71,6 @@ export default function EditPostPage({ params }: EditPageProps) {
     }
   };
 
-  if (loading) return <p>Loading post...</p>;
-
-  // No need for post-not-found message, we redirect automatically
   return (
     <div className="max-w-xl mx-auto mt-10">
       <h1 className="text-2xl font-bold mb-4">Edit Post</h1>
