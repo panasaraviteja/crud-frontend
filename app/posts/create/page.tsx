@@ -7,6 +7,16 @@ export default function CreatePostPage() {
   const router = useRouter();
 
   async function onSubmit(values: { title: string; content: string; author: string }) {
+    // ✅ Simple validation
+    if (!values.title.trim() || !values.content.trim() || !values.author.trim()) {
+      alert("All fields are required!");
+      return;
+    }
+    if (values.title.length < 3) {
+      alert("Title must be at least 3 characters long.");
+      return;
+    }
+
     await createPost(values);
     router.push("/");
   }
@@ -18,4 +28,3 @@ export default function CreatePostPage() {
     </div>
   );
 }
-
