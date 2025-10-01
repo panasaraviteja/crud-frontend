@@ -35,13 +35,13 @@ export default function EditPage({ params }: { params: { id: string } }) {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     await updatePost(id, { title, content, author });
-    router.push("/posts");
+    router.push("/");
   };
 
   const handleDelete = async () => {
     if (!confirm("Are you sure?")) return;
     await deletePost(id);
-    router.push("/posts");
+    router.push("/");
   };
 
   return (
